@@ -15,6 +15,8 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.timeout = 1;
 
+  boot.initrd.kernelModules = [ "i915" ];
+
   boot.initrd.luks.devices.crypted.device = "/dev/sda1";
   fileSystems."/".device = "/dev/mapper/crypted";
 
@@ -98,6 +100,18 @@
   # Enable sound.
   sound.enable = true;
   hardware.pulseaudio.enable = true;
+  hardware.cpu.intel.updateMicrocode = true;
+
+  hardware.opengl.extraPackages = with pkgs; [
+    vaapiIntel
+    vaapiVdpau
+    libvdpau-va-gl
+    intel-media-driver
+  ];
+
+  # Collect nix store garbage and optimise daily.
+  nix.gc.automatic = true;
+  nix.optimise.automatic = true;
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
