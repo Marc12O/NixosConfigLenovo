@@ -8,7 +8,7 @@
     [ <nixpkgs/nixos/modules/installer/scan/not-detected.nix>
     ];
 
-  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" ];
+  boot.initrd.availableKernelModules = [ "xhci_pci" "ehci_pci" "ahci" "usb_storage" "sd_mod" "sdhci_pci" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
@@ -21,12 +21,12 @@
   boot.initrd.luks.devices.crypted.device = "/dev/sda1";
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/68AA-0F5F";
+    { device = "/dev/sda3";
       fsType = "vfat";
     };
 
   swapDevices =
-    [ { device = "/dev/disk/by-uuid/0896f20d-29d1-473d-ba2f-0e16709b18fb"; }
+    [ { device = "/dev/sda2"; }
     ];
 
   nix.maxJobs = lib.mkDefault 4;
