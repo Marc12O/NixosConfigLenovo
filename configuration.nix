@@ -36,7 +36,7 @@
   services.avahi.openFirewall = true;
 
   services.tlp.enable = true;
-  services.hdapsd.enable = true;
+  #services.hdapsd.enable = true;
 
   networking.networkmanager.enable = true;
 
@@ -178,10 +178,12 @@
   services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
 
+  nixpkgs.config.firefox.enablePlasmaBrowserIntegration = true;
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.user = {
     isNormalUser = true;
-    extraGroups = [ "lxd" "cdrom" "tty" "uucp" "docker" "wheel" "audio" "dialout" "docker" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [ "lxd" "cdrom" "tty" "uucp" "docker" "wheel" "audio" "dialout" ]; # Enable ‘sudo’ for the user.
   };
 
   # This value determines the NixOS release from which the default
