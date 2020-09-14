@@ -27,15 +27,13 @@
   #boot.initrd.luks.devices.crypted.device = "/dev/sda1";
   #fileSystems."/".device = "/dev/mapper/crypted";
 
-  networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "nixosx-230"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   boot.kernelParams = [ "modprobe.blacklist=dvb_usb_rtl28xxu" ]; # blacklist this module
 
-  #services.udev.packages = [ pkgs.rtl-sdr pkgs.libusb ]; # (there might be other packages that require udev here too)
-
   services.avahi.enable = true;
-  #services.avahi.openFirewall = true;
+  services.avahi.openFirewall = true;
 
   services.tlp.enable = true;
   services.hdapsd.enable = true;
@@ -57,11 +55,11 @@
   virtualisation.docker.enable = true;
 
   # Select internationalisation properties.
-  #i18n.defaultLocale = "en_US.UTF-8";
-  #console = {
-  #  font = "Lat2-Terminus16";
-  #  keyMap = "us";
-  #};
+  i18n.defaultLocale = "en_US.UTF-8";
+  console = {
+    font = "Lat2-Terminus16";
+    keyMap = "us";
+  };
 
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
@@ -73,7 +71,7 @@
     avahi
     binutils
     cmake
-    #cubicsdr
+    cubicsdr
     curl 
     dump1090
     etcher
@@ -82,7 +80,7 @@
     git 
     gnupg 
     gqrx
-    #gr-osmosdr
+    gr-osmosdr
     gwenview
     inxi
     libreoffice
@@ -97,16 +95,16 @@
     okular 
     pkgs.gst_all_1.gst-plugins-base
     pkgs.gst_all_1.gst-plugins-good
-    #pkgs.ledger-live-desktop
+    pkgs.ledger-live-desktop
     pkgs.ledger-udev-rules
     pkgs.rtl-sdr 
     pkgs.yubikey-manager-qt
     pkgs.yubikey-personalization-gui
     pulseeffects
-    #qpaeq
+    qpaeq
     qradiolink
     rtl-sdr
-    #sdrangel
+    sdrangel
     soapysdr-with-plugins
     spectacle 
     syncthing
@@ -119,8 +117,6 @@
 
   ];
   
-  #services.udev.packages = [ pkgs.rtl-sdr pkgs.libusb ]; # (there might be other packages that require udev here too)
-
   services.udev = {
 
       packages = [ pkgs.rtl-sdr pkgs.libusb ]; # (there might be other packages that require udev here too)
@@ -139,7 +135,7 @@
   programs.gnupg.agent = {
     enable = true;
     enableSSHSupport = true;
-    #pinentryFlavor = "gnome3";
+    pinentryFlavor = "gnome3";
   };
 
   # List services that you want to enable:
@@ -168,10 +164,6 @@
     intel-media-driver
   ];
 
-  # Collect nix store garbage and optimise daily.
-  nix.gc.automatic = true;
-  nix.optimise.automatic = true;
-
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   services.xserver.layout = "us";
@@ -189,7 +181,7 @@
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.user = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "audio" "dialout" "docker" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [ "lxd" "cdrom" "tty" "uucp" "docker" "wheel" "audio" "dialout" "docker" ]; # Enable ‘sudo’ for the user.
   };
 
   # This value determines the NixOS release from which the default
@@ -199,5 +191,16 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "20.03"; # Did you read the comment?
+
+  # Collect nix store garbage and optimise daily.
+  nix.gc.automatic = true;
+  nix.optimise.automatic = true;
+
+  system.autoUpgrade.enable = true;
+  system.autoUpgrade.allowReboot = false;
+
+  boot.kernel.sysctl =  { "vm.swappiness" = 1; };
+  
+  services.fstrim.enable = true;
 
 }
