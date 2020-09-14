@@ -10,7 +10,9 @@
       ./hardware-configuration.nix
     ];
 
+
   nixpkgs.config.allowUnfree = true;
+  hardware.enableAllFirmware = true;  
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -18,16 +20,25 @@
   boot.loader.timeout = 1;
 
   boot.initrd.kernelModules = [ "i915" ];
+  boot.kernelModules = [ "tpm-rng" "acpi_call" ];
 
-  boot.initrd.luks.devices.crypted.device = "/dev/sda1";
-  fileSystems."/".device = "/dev/mapper/crypted";
+  boot.extraModulePackages = with config.boot.kernelPackages; [ acpi_call ];
+
+  #boot.initrd.luks.devices.crypted.device = "/dev/sda1";
+  #fileSystems."/".device = "/dev/mapper/crypted";
 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   boot.kernelParams = [ "modprobe.blacklist=dvb_usb_rtl28xxu" ]; # blacklist this module
 
-  services.udev.packages = [ pkgs.rtl-sdr ]; # (there might be other packages that require udev here too)
+  #services.udev.packages = [ pkgs.rtl-sdr pkgs.libusb ]; # (there might be other packages that require udev here too)
+
+  services.avahi.enable = true;
+  #services.avahi.openFirewall = true;
+
+  services.tlp.enable = true;
+  services.hdapsd.enable = true;
 
   networking.networkmanager.enable = true;
 
@@ -46,55 +57,73 @@
   virtualisation.docker.enable = true;
 
   # Select internationalisation properties.
-  i18n.defaultLocale = "en_US.UTF-8";
-  console = {
-    font = "Lat2-Terminus16";
-    keyMap = "us";
-  };
+  #i18n.defaultLocale = "en_US.UTF-8";
+  #console = {
+  #  font = "Lat2-Terminus16";
+  #  keyMap = "us";
+  #};
 
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  nixpkgs.config.allowBroken = true;
+  # nixpkgs.config.allowBroken = true;
   environment.systemPackages = with pkgs; [
-    wget 
-    vim 
-    mc 
-    firefox-bin
-    wsjtx 
-    fldigi 
-    libreoffice 
-    gnupg 
-    tdesktop
-    oathToolkit 
-    spectacle 
-    okular 
-    gwenview
-    git 
+    avahi
+    binutils
+    cmake
+    #cubicsdr
     curl 
-    unzip 
-    vlc 
-    libreoffice
-    libusb 
+    dump1090
+    etcher
+    firefox
+    fldigi 
+    git 
+    gnupg 
     gqrx
-    pkgs.ledger-live-desktop
-    pkgs.ledger-udev-rules
-    pkgs.yubikey-manager-qt
-    pkgs.yubikey-personalization-gui
-    pkgs.rtl-sdr 
-    pulseeffects
+    #gr-osmosdr
+    gwenview
+    inxi
+    libreoffice
+    libreoffice 
+    libusb 
+    gcc
+    gcc9Stdenv
+    gnumake
+    mc 
+    neofetch
+    oathToolkit 
+    okular 
     pkgs.gst_all_1.gst-plugins-base
     pkgs.gst_all_1.gst-plugins-good
-    qpaeq
+    #pkgs.ledger-live-desktop
+    pkgs.ledger-udev-rules
+    pkgs.rtl-sdr 
+    pkgs.yubikey-manager-qt
+    pkgs.yubikey-personalization-gui
+    pulseeffects
+    #qpaeq
+    qradiolink
     rtl-sdr
-    sdrangel
+    #sdrangel
+    soapysdr-with-plugins
+    spectacle 
     syncthing
+    tdesktop
+    unzip 
+    vim 
+    vlc 
+    wget 
+    wsjtx 
 
   ];
+  
+  #services.udev.packages = [ pkgs.rtl-sdr pkgs.libusb ]; # (there might be other packages that require udev here too)
 
   services.udev = {
+
+      packages = [ pkgs.rtl-sdr pkgs.libusb ]; # (there might be other packages that require udev here too)
       path = [ pkgs.coreutils ];
       extraRules = ''
         SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTRS{idVendor}=="1df7",ATTRS{idProduct}=="2500",MODE:="0666"
@@ -110,7 +139,7 @@
   programs.gnupg.agent = {
     enable = true;
     enableSSHSupport = true;
-    pinentryFlavor = "gnome3";
+    #pinentryFlavor = "gnome3";
   };
 
   # List services that you want to enable:
@@ -119,7 +148,7 @@
   services.openssh.enable = true;
 
   # Open ports in the firewall.
-  networking.firewall.allowedTCPPorts = [ 22 ];
+  networking.firewall.allowedTCPPorts = [ 22 1234 5353 8080 9000 ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
@@ -151,6 +180,7 @@
 
   # Enable touchpad support.
   services.xserver.libinput.enable = true;
+  services.xserver.synaptics.palmDetect = true;
 
   # Enable the KDE Desktop Environment.
   services.xserver.displayManager.sddm.enable = true;
@@ -159,7 +189,7 @@
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.user = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "audio" "dialout" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [ "wheel" "audio" "dialout" "docker" ]; # Enable ‘sudo’ for the user.
   };
 
   # This value determines the NixOS release from which the default
